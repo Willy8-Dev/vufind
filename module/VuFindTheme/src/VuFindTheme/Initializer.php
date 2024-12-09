@@ -303,14 +303,29 @@ class Initializer
         $options = [];
         if (isset($this->config->selectable_themes)) {
             $parts = explode(',', $this->config->selectable_themes);
+
+            if (isset($this->config->alternate_themes)) {
+                $aliases = explode(',', $this->config->alternate_themes);
+            }
+
             foreach ($parts as $part) {
                 $subparts = explode(':', $part);
-                $name = trim($subparts[0]);
+                $displayName = $name = trim($subparts[0]);
                 $desc = isset($subparts[1]) ? trim($subparts[1]) : '';
-                $desc = empty($desc) ? $name : $desc;
+                $desc = empty($desc) ? $displayName : $desc;
+
+                if (!empty($aliases)) {
+                    $key = array_search("{$name}:{$currentTheme}", $aliases);
+
+                    if ($key !== false) {
+                        $name = $currentTheme;
+                    }
+                }
+
                 if (!empty($name)) {
                     $options[] = [
-                        'name' => $name, 'desc' => $desc,
+                        'name' => $displayName,
+                        'desc' => $desc,
                         'selected' => ($currentTheme == $name),
                     ];
                 }
